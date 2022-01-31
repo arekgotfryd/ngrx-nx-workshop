@@ -11,11 +11,15 @@ export class CartService {
 
   constructor(private readonly http: HttpClient) {}
 
-  addProduct(id: string): void {
-    this.http
+  addProduct(id: string): Observable<CartItem[]> {
+    return this.http
       .post<CartItem[]>(`/api/cart/add/${id}`, {})
-      .subscribe(arr => this.cartItemsSubject$.next(arr));
   }
+  // addProduct(id: string): void {
+  //   this.http
+  //     .post<CartItem[]>(`/api/cart/add/${id}`, {})
+  //     .subscribe(arr => this.cartItemsSubject$.next(arr));
+  // }
 
   removeProduct(id: string): void {
     this.http
@@ -29,10 +33,13 @@ export class CartService {
       .subscribe(arr => this.cartItemsSubject$.next(arr));
   }
 
-  getCartProducts(): void {
-    this.http
-      .get<CartItem[]>(`/api/cart/cart-content`)
-      .subscribe(arr => this.cartItemsSubject$.next(arr));
+  // getCartProducts(): void {
+  //   this.http
+  //     .get<CartItem[]>(`/api/cart/cart-content`)
+  //     .subscribe(arr => this.cartItemsSubject$.next(arr));
+  // }
+  getCartProducts(): Observable<CartItem[]> {
+    return this.http.get<CartItem[]>(`/api/cart/cart-content`);
   }
 
   purchase(purchaseItems: CartItem[]): Observable<boolean> {

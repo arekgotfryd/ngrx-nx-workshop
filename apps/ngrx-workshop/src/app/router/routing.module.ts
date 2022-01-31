@@ -14,12 +14,24 @@ const routes: Routes = [
   { path: '', component: ProductListComponent, pathMatch: 'full' }
 ];
 
+import { StoreModule } from '@ngrx/store';
+import { routerReducer, StoreRouterConnectingModule, RouterState } from '@ngrx/router-store';
+import { ROUTER_FEATURE_KEY } from './selectors';
+
+// import { CustomRouterSerializer } from './custom-router-serializer';
+
+
 @NgModule({
   imports: [
     ProductDetailsModule,
     ProductListModule,
     CartDetailsModule,
-    RouterModule.forRoot(routes, { relativeLinkResolution: 'legacy' })
+    RouterModule.forRoot(routes, { relativeLinkResolution: 'legacy' }),
+    StoreModule.forFeature(ROUTER_FEATURE_KEY, routerReducer),
+    StoreRouterConnectingModule.forRoot({
+      stateKey: ROUTER_FEATURE_KEY,
+      routerState: RouterState.Minimal
+    })
   ],
   exports: [RouterModule]
 })

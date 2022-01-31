@@ -1,7 +1,7 @@
+import { getCartProducts, getCartTotal } from './../selectors';
+import * as actions from './actions';
+import { Store } from '@ngrx/store';
 import { Component } from '@angular/core';
-import { combineLatest, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-
 import { CartProduct } from '../../model/product';
 import { CartService } from '../cart.service';
 import { ProductService } from '../../product/product.service';
@@ -14,43 +14,17 @@ import { Router } from '@angular/router';
   styleUrls: ['./cart-details.component.scss']
 })
 export class CartDetailsComponent {
-  cartProducts$: Observable<CartProduct[] | undefined> = combineLatest(
-    this.cartService.cartItems$,
-    this.productService.getProducts()
-  ).pipe(
-    map(([cartItems, products]) => {
-      if (!cartItems || !products) return undefined;
-      return cartItems
-        .map(({ productId, quantity }): CartProduct | undefined => {
-          const product = products.find(p => p.id === productId);
-          if (!product) return undefined;
-          return {
-            ...product,
-            quantity
-          };
-        })
-        .filter((cartProduct): cartProduct is CartProduct => !!cartProduct);
-    })
-  );
-
-  total$ = this.cartProducts$.pipe(
-    map(
-      cartProducts =>
-        cartProducts &&
-        cartProducts.reduce(
-          (acc, product) => acc + product.price * product.quantity,
-          0
-        )
-    )
-  );
+  cartProducts$ = this.store.select(getCartProducts);
+  total$ = this.store.select(getCartTotal);
 
   constructor(
     private readonly cartService: CartService,
     private readonly productService: ProductService,
     private readonly snackBar: MatSnackBar,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly store: Store
   ) {
-    this.cartService.getCartProducts();
+    this.store.dispatch(actions.pageOpened());
   }
 
   removeOne(id: string) {
@@ -70,6 +44,7 @@ export class CartDetailsComponent {
       .subscribe(isSuccess => {
         if (isSuccess) {
           this.cartService.getCartProducts();
+          this.store.dispatch(actions.purchaseSuccess());
           this.router.navigateByUrl('');
         } else {
           this.snackBar.open('Purchase error', 'Error', {

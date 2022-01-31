@@ -1,6 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+// import { Injectable, NotFoundException } from '@nestjs/common';
 import { Product, BasicProduct } from '@ngrx-nx-workshop/api-interfaces';
 import { data } from '@ngrx-nx-workshop/data';
+import {
+  Injectable,
+  NotFoundException,
+  HttpException,
+  HttpStatus
+ } from '@nestjs/common';
 
 function stripDescription(originalData: Product[]): BasicProduct[] {
   return originalData.map(({description, ...product}) => product);
@@ -9,6 +15,9 @@ function stripDescription(originalData: Product[]): BasicProduct[] {
 @Injectable()
 export class ProductService {
   getProductList(): BasicProduct[] {
+    // if(Math.random() < 0.8){
+    //   throw new HttpException("producst failed",HttpStatus.FORBIDDEN)
+    // }
     return stripDescription(data);
   }
 
