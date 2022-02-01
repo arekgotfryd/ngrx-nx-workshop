@@ -1,11 +1,20 @@
+<ng-container *ngIf="(productsCallState$ | async) === ResultState.LOADING">
+  <mat-progress-bar
+    *ngIf="(products$ | async)?.length; else loadingProducts"
+    mode="indeterminate"
+  ></mat-progress-bar>
+  <ng-template #loadingProducts>
+    <ngrx-nx-workshop-spinner></ngrx-nx-workshop-spinner>
+  </ng-template>
+</ng-container>
 <div
   class="products-container"
-  *ngIf="products$ | async as products; else loadingProducts"
+  *ngIf="(productsCallState$ | async) === ResultState.LOADED"
 >
   <a
     class="card-link"
     [routerLink]="['/details', product.id]"
-    *ngFor="let product of products"
+    *ngFor="let product of products$ | async"
   >
     <mat-card>
       <mat-card-title>{{ product.title }}</mat-card-title>
@@ -18,7 +27,3 @@
     </mat-card>
   </a>
 </div>
-
-<ng-template #loadingProducts>
-  <ngrx-nx-workshop-spinner></ngrx-nx-workshop-spinner>
-</ng-template>

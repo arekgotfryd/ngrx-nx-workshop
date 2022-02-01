@@ -8,6 +8,7 @@ const getProductsState = createSelector(
   getProductState,
   state => state.products
 );
+
 export const getProducts = createSelector(getProductsState, selectAll);
 
 export const getProductsEntities = createSelector(
@@ -22,4 +23,9 @@ export const getCurrentProduct = createSelector(
     if (id == null || !products) return undefined;
     return products[id];
   }
+);
+
+export const getProductsCallState = createSelector(
+  getProductState,
+  state => state.productsCallState
 );

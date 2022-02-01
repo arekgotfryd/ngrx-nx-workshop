@@ -1,16 +1,12 @@
 import { productsOpened } from './actions';
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-
-import {
-  BasicProduct,
-  Product,
-  Rating
-} from '@ngrx-nx-workshop/api-interfaces';
+import { BasicProduct, Rating } from '@ngrx-nx-workshop/api-interfaces';
 import { RatingService } from '../rating.service';
 import { map, shareReplay } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
-import { getProducts } from '../selector';
+import { getProducts, getProductsCallState } from '../selector';
+import { CallState, ResultState } from '../../shared/call_state';
 
 @Component({
   selector: 'ngrx-nx-workshop-home',
@@ -22,6 +18,10 @@ export class ProductListComponent implements OnInit {
     getProducts
   );
   customerRatings$?: Observable<Map<string, Rating>>;
+  productsCallState$: Observable<CallState> = this.store.select(
+    getProductsCallState
+  );
+  readonly ResultState = ResultState;
 
   constructor(
     private readonly store: Store,

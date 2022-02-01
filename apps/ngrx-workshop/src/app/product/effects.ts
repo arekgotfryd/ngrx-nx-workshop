@@ -2,18 +2,27 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
-import { map, exhaustMap, catchError, tap, switchMap, withLatestFrom } from 'rxjs/operators';
+import {
+  map,
+  exhaustMap,
+  catchError,
+  tap,
+  switchMap,
+  withLatestFrom
+} from 'rxjs/operators';
 import { productsFetchedSuccess, productsFetchedError } from './actions';
 import * as productListActions from './product-list/actions';
 import * as cartDetailsActions from '../cart/cart-details/actions';
+import * as apiActions from './actions';
 import { ProductService } from './product.service';
 import {
   productDetailsOpened,
   productFetchedError,
   productFetchedSuccess
 } from './product-details/actions';
-import { getCurrentProductId } from './selector';
+import { getCurrentProductId, getProductsCallState } from './selector';
 import { Store } from '@ngrx/store';
+import { getCallStateError } from '../shared/call_state';
 
 @Injectable()
 export class ProductEffects {
@@ -27,12 +36,15 @@ export class ProductEffects {
   readonly fetchProducts$ = createEffect(() =>
     this.actions$.pipe(
       ofType(productListActions.productsOpened, cartDetailsActions.pageOpened),
-      exhaustMap(() =>
-        this.productService.getProducts().pipe(
+      map(() => {
+        apiActions.productsFetch();
+      }),
+      exhaustMap(() => {
+        return this.productService.getProducts().pipe(
           map(products => productsFetchedSuccess({ products })),
           catchError(() => of(productsFetchedError()))
-        )
-      )
+        );
+      })
     )
   );
 
@@ -53,9 +65,10 @@ export class ProductEffects {
     () =>
       this.actions$.pipe(
         ofType(productsFetchedError),
-        tap(() => {
-          console.log('fetching error');
-          this.snackBar.open('Error fething products', 'Error', {
+        withLatestFrom(this.store.select(getProductsCallState)),
+        tap(([, callState]) => {
+          console.log(getCallStateError(callState));
+          this.snackBar.open(getCallStateError(callState)!, 'Error', {
             duration: 2500
           });
         })
